@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Finance Dashboard - Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center">
+  <div class="bg-slate-800 p-8 rounded-xl shadow-2xl w-full max-w-md">
+    <h1 class="text-3xl font-bold mb-6 text-center text-blue-400">Finance Dashboard</h1>
+    
+    <form id="loginForm" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Email</label>
+        <input type="email" id="email" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Password</label>
+        <input type="password" id="password" class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required>
+      </div>
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 transition font-bold py-2 px-4 rounded-lg">Login</button>
+      <p id="errorMsg" class="text-red-400 text-sm hidden"></p>
+    </form>
+    
+    <div class="mt-6 text-center text-sm">
+      <p>Need an account? <button onclick="toggleRegister()" class="text-blue-400 hover:underline font-bold">Register via API (Demo)</button></p>
+    </div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      const formData = new URLSearchParams();
+      formData.append('username', email);
+      formData.append('password', password);
+      
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formData.toString()
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem('token', data.access_token);
+          window.location.href = '/dashboard/app.html';
+        } else {
+          document.getElementById('errorMsg').textContent = 'Invalid credentials';
+          document.getElementById('errorMsg').classList.remove('hidden');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    async function toggleRegister() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        if (!email || !password) {
+            alert("Enter email and password above, then click Register to create an account.");
+            return;
+        }
+        const res = await fetch('/api/users/register', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email, password, full_name: 'New Dashboard User' })
+        });
+        if (res.ok) {
+            alert("Registered successfully! The first user is an Admin. Now click Login.");
+        } else {
+            const data = await res.json();
+            alert(`Failed: ${data.detail || "Email might exist."}`);
+        }
+    }
+  </script>
+</body>
+</html>

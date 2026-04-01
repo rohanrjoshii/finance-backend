@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="h-full flex items-center justify-center pt-20">
+  <div class="bg-slate-800/80 backdrop-blur-xl border border-slate-700/50 p-10 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] w-full max-w-sm relative overflow-hidden group">
+    <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl group-hover:bg-indigo-500/30 transition duration-500"></div>
+    <div class="relative z-10">
+        <h1 class="text-3xl font-bold mb-2 text-white">Sign In</h1>
+        <p class="text-sm text-slate-400 mb-8">Access the secure CashFlow Pro dashboard.</p>
+        
+        <form id="loginForm" class="space-y-4">
+        <div>
+            <label class="block text-xs uppercase tracking-widest text-slate-400 mb-1.5 ml-1 font-semibold">Email</label>
+            <input type="email" id="email" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-white transition shadow-inner" required placeholder="admin@zorvyn.com">
+        </div>
+        <div>
+            <label class="block text-xs uppercase tracking-widest text-slate-400 mb-1.5 ml-1 font-semibold">Password</label>
+            <input type="password" id="password" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-white transition shadow-inner" required placeholder="••••••••">
+        </div>
+        <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-indigo-600/25 transform hover:-translate-y-0.5 transition-all duration-300 mt-2 flex justify-center items-center">
+            Sign In
+        </button>
+        </form>
+        
+        <div id="inlineFeedback" class="hidden mt-4 p-3 rounded-xl text-xs font-bold text-center border"></div>
+
+        <div class="mt-6 text-center text-sm border-t border-slate-700/50 pt-6">
+        <p class="text-slate-400">Need an account? <button type="button" onclick="handleRegister()" class="text-indigo-400 font-semibold hover:text-indigo-300 transition">Register Demo Admin</button></p>
+        </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    function inlineFeedback(msg, isError) {
+        const el = document.getElementById('inlineFeedback');
+        el.textContent = msg;
+        el.className = `mt-4 p-3 rounded-xl text-xs font-bold text-center border ${isError ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`;
+        try { showToast(msg, isError); } catch(e) {}
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+        
+        const formData = new URLSearchParams();
+        formData.append('username', document.getElementById('email').value);
+        formData.append('password', document.getElementById('password').value);
+        
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                body: formData
+            });
+            if(res.ok) {
+                window.location.href = "/dashboard";
+            } else {
+                inlineFeedback("Access Denied: Invalid email or password", true);
+                btn.innerHTML = 'Sign In';
+            }
+        } catch(err) {
+            inlineFeedback("Network Error: Unable to reach backend.", true);
+            btn.innerHTML = 'Sign In';
+        }
+    });
+
+    async function handleRegister() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        if(!email || !password) return inlineFeedback("Please type your desired email and password above first, then click register.", true);
+        
+        try {
+            const res = await fetch('/api/users/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email, password, full_name: 'Demo Admin' })
+            });
+            if(res.ok) {
+                inlineFeedback("Registration Success! Account created. You can now click 'Sign In'.", false);
+            } else {
+                const d = await res.json();
+                inlineFeedback(`Registration Failed: ${d.detail || "Email already exists"}`, true);
+            }
+        } catch(err) {
+            inlineFeedback("Network Error during registration.", true);
+        }
+    }
+</script>
+{% endblock %}

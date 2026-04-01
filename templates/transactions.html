@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Decorative orbs -->
+<div class="absolute top-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] -z-10 cursor-none"></div>
+
+<div class="flex items-center gap-4 mb-8">
+    <a href="/dashboard" class="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-600 flex items-center justify-center text-slate-400 hover:text-white transition shadow-sm group">
+        <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+    </a>
+    <div>
+        <h2 class="text-3xl font-bold tracking-tight text-white mb-1">Log Transaction</h2>
+        <p class="text-sm text-slate-400">Add an income or expense strictly under your Admin role.</p>
+    </div>
+</div>
+
+<div class="bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700/50 p-6 md:p-8 max-w-3xl relative overflow-hidden">
+    {% if user.role.value == 'admin' %}
+    <form id="recordForm" class="space-y-6 relative z-10">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Amount -->
+            <div>
+                <label class="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1">Amount</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold border-r border-slate-600 pr-3">₹</span>
+                    <input type="number" step="0.01" id="amount" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-12 pr-4 py-3 outline-none focus:border-indigo-500 focus:bg-slate-800 transition shadow-inner font-medium text-lg" required placeholder="0.00">
+                </div>
+            </div>
+            
+            <!-- Category -->
+            <div>
+                <label class="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1">Category</label>
+                <input type="text" id="category" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-indigo-500 focus:bg-slate-800 transition shadow-inner placeholder-slate-600 font-medium" placeholder="E.g. Travel, Salary, Food" required>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Type (Radio toggle using Tailwind) -->
+            <div>
+                <label class="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1">Type</label>
+                <div class="flex gap-4">
+                    <label class="flex-1 cursor-pointer group">
+                        <input type="radio" name="type" value="expense" class="peer sr-only" checked>
+                        <div class="w-full bg-slate-900/50 border border-slate-700 peer-checked:border-rose-500 peer-checked:bg-rose-500/10 text-slate-400 peer-checked:text-rose-400 rounded-xl p-3 text-center font-bold transition shadow-inner flex flex-col items-center gap-1 group-hover:bg-slate-800/50">
+                            <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
+                            Expense
+                        </div>
+                    </label>
+                    <label class="flex-1 cursor-pointer group">
+                        <input type="radio" name="type" value="income" class="peer sr-only">
+                        <div class="w-full bg-slate-900/50 border border-slate-700 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 text-slate-400 peer-checked:text-emerald-400 rounded-xl p-3 text-center font-bold transition shadow-inner flex flex-col items-center gap-1 group-hover:bg-slate-800/50">
+                            <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                            Income
+                        </div>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Date (Native HTML5 Date) -->
+            <div>
+                <label class="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1">Transaction Date</label>
+                <input type="date" id="date" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-indigo-500 focus:bg-slate-800 transition shadow-inner text-slate-300 h-[68px] cursor-pointer" style="color-scheme: dark;">
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1 flex justify-between">
+                Notes
+                <span id="noteMeasurement" class="text-indigo-400 opacity-0 transition-opacity duration-300 normal-case bg-indigo-500/10 px-2 rounded-md flex items-center gap-1 text-[10px]"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg> Pretext Array Calibrating...</span>
+            </label>
+            <!-- PRETEXT INTEGRATION: resize-none + overflow-hidden to rely on native JS height bound checking -->
+            <textarea id="notes" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-indigo-500 focus:bg-slate-800 transition shadow-inner placeholder-slate-600 resize-none overflow-hidden" style="min-height: 48px;" placeholder="Add optional details..."></textarea>
+        </div>
+
+        <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all duration-300 font-bold py-4 rounded-xl text-sm uppercase tracking-widest flex items-center justify-center gap-2 group">
+            <svg class="w-5 h-5 group-hover:scale-125 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Commit Transaction
+        </button>
+    </form>
+    {% else %}
+    <div class="text-center py-10 relative z-10">
+        <div class="w-16 h-16 bg-rose-500/10 text-rose-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">Access Denied</h3>
+        <p class="text-slate-400">Current active role determines that you are a Viewer or Analyst. Only Admins can create records.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% if user.role.value == 'admin' %}
+<script>
+    const notesInput = document.getElementById('notes');
+    notesInput.addEventListener('input', (e) => {
+      const text = e.target.value;
+      if (window.measurePretextHeight) {
+        const padding = 24; 
+        const width = notesInput.clientWidth - 32; 
+        const calculatedHeight = window.measurePretextHeight(text, width);
+        notesInput.style.height = `${Math.max(48, calculatedHeight + padding)}px`;
+        document.getElementById('noteMeasurement').style.opacity = text.length > 0 ? 1 : 0;
+      }
+    });
+
+    document.getElementById('recordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const originalContent = btn.innerHTML;
+        btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...`;
+        
+        const typeSelection = document.querySelector('input[name="type"]:checked').value;
+        const payload = {
+            amount: parseFloat(document.getElementById('amount').value),
+            record_type: typeSelection,
+            category: document.getElementById('category').value,
+            notes: document.getElementById('notes').value
+        };
+
+        try {
+            // Because our FastAPI backend JSON API still operates off purely JSON, 
+            // but we send the cookie alongside it, the backend verifies it through HTTPOnly cookie!
+            const res = await fetch('/api/records/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            if (res.ok) {
+                showToast("Transaction saved successfully!");
+                // True SSR refresh page pattern
+                setTimeout(() => window.location.href = '/dashboard', 1000); 
+            } else {
+                const errData = await res.json();
+                showToast(errData.detail || 'Error saving record', true);
+                btn.innerHTML = originalContent;
+            }
+        } catch (err) {
+            showToast("Network Error", true);
+            btn.innerHTML = originalContent;
+        }
+    });
+
+    document.getElementById('date').valueAsDate = new Date();
+</script>
+{% endif %}
+{% endblock %}

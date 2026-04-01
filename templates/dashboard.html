@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Decorative orbs -->
+<div class="absolute top-10 right-10 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] -z-10"></div>
+<div class="absolute bottom-10 left-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] -z-10"></div>
+
+<!-- Action Bar -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+        <h2 class="text-3xl font-bold tracking-tight text-white mb-1">Financial Overview</h2>
+        <p class="text-sm text-slate-400">Monitor your cash flow, analyze expenses, and track your runway.</p>
+    </div>
+    <div class="flex gap-3">
+        <button class="px-4 py-2 bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition rounded-xl font-medium text-sm flex items-center gap-2 shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            Export Report
+        </button>
+        {% if user.role.value == 'admin' %}
+        <a href="/transactions" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 border border-indigo-400/30 text-white rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(79,70,229,0.4)] transition flex items-center gap-2 transform hover:-translate-y-0.5" title="Keyboard Shortcut: N">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            New Transaction
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Key Performance Indicators (Hero Metrics) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+    <div class="bg-gradient-to-br from-indigo-900/50 to-slate-800/80 border border-indigo-500/20 p-6 rounded-2xl shadow-xl hover:border-indigo-500/50 transition duration-300 group">
+        <p class="text-indigo-300 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Net Balance</p>
+        <p class="text-3xl font-bold text-white mb-3">₹{{ '{:,.2f}'.format(net_balance) }}</p>
+        <div class="w-full bg-slate-900 rounded-full h-1"><div class="bg-indigo-500 h-1 rounded-full w-full"></div></div>
+    </div>
+    
+    <div class="bg-gradient-to-br from-emerald-900/50 to-slate-800/80 border border-emerald-500/20 p-6 rounded-2xl shadow-xl hover:border-emerald-500/50 transition duration-300 group">
+        <p class="text-emerald-300 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg> Total Income</p>
+        <p class="text-3xl font-bold text-emerald-100 mb-3 hover:scale-105 transition origin-left inline-block">₹{{ '{:,.2f}'.format(total_income) }}</p>
+        <div class="w-full bg-slate-900 rounded-full h-1"><div class="bg-emerald-500 h-1 rounded-full w-3/4"></div></div>
+    </div>
+
+    <div class="bg-gradient-to-br from-rose-900/50 to-slate-800/80 border border-rose-500/20 p-6 rounded-2xl shadow-xl hover:border-rose-500/50 transition duration-300 group">
+        <p class="text-rose-300 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg> Total Expenses</p>
+        <p class="text-3xl font-bold text-rose-100 mb-3 hover:scale-105 transition origin-left inline-block">₹{{ '{:,.2f}'.format(total_expenses) }}</p>
+        <div class="w-full bg-slate-900 rounded-full h-1"><div class="bg-rose-500 h-1 rounded-full w-1/4"></div></div>
+    </div>
+    
+    <div class="bg-gradient-to-br from-amber-900/50 to-slate-800/80 border border-amber-500/20 p-6 rounded-2xl shadow-xl hover:border-amber-500/50 transition duration-300 group">
+        <p class="text-amber-300 text-xs font-bold uppercase tracking-widest mb-2 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Cash Runway</p>
+        <p class="text-3xl font-bold text-amber-100 mb-3">{% if runway >= 120 %}10+ Years{% else %}{{ "{:.1f}".format(runway) }} Months{% endif %}</p>
+        <div class="w-full bg-slate-900 rounded-full h-1"><div class="bg-amber-500 h-1 rounded-full w-1/2"></div></div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Recent Transactions Table -->
+    <div class="col-span-1 lg:col-span-2 bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700/50 overflow-hidden">
+        <div class="p-6 border-b border-slate-700/50 flex justify-between items-center bg-slate-800/50">
+            <h3 class="text-lg font-bold text-white flex gap-2 items-center"><svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> Recent Transactions</h3>
+        </div>
+        
+        <div class="overflow-x-auto overflow-y-auto max-h-[400px]">
+            {% if records %}
+            <table class="w-full text-left border-collapse">
+                <thead class="sticky top-0 z-10">
+                    <tr class="text-[11px] uppercase tracking-widest text-slate-400 bg-slate-900/90 backdrop-blur-sm border-b border-slate-700/50">
+                        <th class="py-4 px-6 font-semibold">Description</th>
+                        <th class="py-4 px-6 font-semibold">Category</th>
+                        <th class="py-4 px-6 font-semibold">Date</th>
+                        <th class="py-4 px-6 font-semibold text-right">Amount</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-700/50">
+                    {% for r in records %}
+                    <tr class="hover:bg-slate-700/20 transition duration-200 group border-b border-slate-700/50 last:border-0 even:bg-slate-800/30">
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center {% if r.record_type.value == 'income' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% else %}bg-rose-500/10 text-rose-400 border border-rose-500/20{% endif %} hover:scale-110 transition shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{% if r.record_type.value == 'income' %}M5 10l7-7m0 0l7 7m-7-7v18{% else %}M19 14l-7 7m0 0l-7-7m7 7V3{% endif %}"></path></svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="font-bold text-slate-200 text-sm tracking-wide truncate">{{ r.notes or 'Standard Entry' }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 text-sm text-slate-400 font-medium whitespace-nowrap"><span class="px-2 py-1 bg-slate-700/30 rounded-md border border-slate-600/50">{{ r.category }}</span></td>
+                        <td class="py-4 px-6 text-sm text-slate-400 font-medium whitespace-nowrap">{{ r.date.strftime('%b %d, %Y') }}</td>
+                        <td class="py-4 px-6 text-right font-bold text-base tracking-wide {% if r.record_type.value == 'income' %}text-emerald-400{% else %}text-slate-200{% endif %} whitespace-nowrap">
+                            {% if r.record_type.value == 'income' %}+{% else %}-{% endif %}₹{{ '{:,.2f}'.format(r.amount) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="p-12 text-center flex flex-col items-center justify-center text-slate-500">
+                <svg class="w-16 h-16 mb-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <p class="text-lg font-medium text-slate-400">No transactions found.</p>
+                <p class="text-sm mt-1 mb-6">Start logging your cash flow.</p>
+                {% if user.role.value == 'admin' %}
+                <a href="/transactions" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full font-bold shadow-lg transition">Add your first</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Inline Chart / Insights -->
+    <div class="col-span-1 bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700/50 p-6 flex flex-col h-full">
+        <h3 class="text-lg font-bold text-white mb-6 border-b border-slate-700/50 pb-4">Cash Flow Balance</h3>
+        <div class="flex-1 flex flex-col justify-center gap-8">
+            {% if total_income > 0 or total_expenses > 0 %}
+            <div class="group">
+                <div class="flex justify-between text-xs font-bold text-slate-400 mb-2 tracking-widest uppercase">
+                    <span>Income Ratio</span>
+                    <span class="text-emerald-400">{{ "{:.0f}".format((total_income / (total_income + total_expenses)) * 100) }}%</span>
+                </div>
+                <div class="w-full bg-slate-900 rounded-full h-4 overflow-hidden border border-slate-700 shadow-inner group-hover:scale-y-110 transition-transform">
+                    <div class="bg-gradient-to-r from-emerald-700 to-emerald-500 h-full rounded-full transition-all duration-1000" style="width: {{ (total_income / (total_income + total_expenses)) * 100 }}%"></div>
+                </div>
+            </div>
+            <div class="group">
+                <div class="flex justify-between text-xs font-bold text-slate-400 mb-2 tracking-widest uppercase">
+                    <span>Expense Ratio</span>
+                    <span class="text-rose-400">{{ "{:.0f}".format((total_expenses / (total_income + total_expenses)) * 100) }}%</span>
+                </div>
+                <div class="w-full bg-slate-900 rounded-full h-4 overflow-hidden border border-slate-700 shadow-inner group-hover:scale-y-110 transition-transform">
+                    <div class="bg-gradient-to-r from-rose-600 to-rose-400 h-full rounded-full transition-all duration-1000" style="width: {{ (total_expenses / (total_income + total_expenses)) * 100 }}%"></div>
+                </div>
+            </div>
+            {% else %}
+            <div class="flex flex-col items-center justify-center p-6 text-slate-500 h-full">
+                <svg class="w-10 h-10 mb-3 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+                <p class="text-sm italic font-medium">Awaiting financial structure</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('keydown', (e) => {
+        if(e.key.toLowerCase() === 'n' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            {% if user.role.value == 'admin' %}
+            window.location.href = '/transactions';
+            {% else %}
+            showToast("Only Admins can use the 'N' shortcut", true);
+            {% endif %}
+        }
+    });
+</script>
+{% endblock %}

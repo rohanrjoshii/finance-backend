@@ -1,0 +1,22 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+
+# Virtual Environment
+venv/
+env/
+
+# Environment Variables
+.env
+.env.local
+
+# Database
+*.sqlite3
+*.db
+finance.db
+
+# OS Generated
+.DS_Store

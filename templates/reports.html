@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  /* Markdown Typography Overrides */
+  .prose h1, .prose h2, .prose h3 { color: white; margin-top: 1.5em; margin-bottom: 0.5em; font-weight: bold; }
+  .prose h1 { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; color: #818cf8; }
+  .prose h2 { font-size: 1.25rem; border-bottom: 1px solid rgba(51, 65, 85, 0.5); padding-bottom: 0.25rem; }
+  .prose p { margin-bottom: 1em; color: #cbd5e1; line-height: 1.7; }
+  .prose ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; color: #94a3b8; }
+  .prose li { margin-bottom: 0.25em; }
+  .prose strong { color: #f8fafc; font-weight: 600; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="h-full flex flex-col pt-4 max-w-5xl mx-auto">
+  <div class="mb-8 flex justify-between items-center">
+    <div>
+        <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent mb-2">Automated Financial Analysis</h1>
+        <p class="text-sm text-slate-400">Upload CSV or PDF reports to instantly extract totals, metrics, and trends via deterministic algorithms.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Upload Section -->
+    <div class="lg:col-span-1 h-fit">
+        <form id="uploadForm" class="bg-slate-800/80 backdrop-blur-md rounded-2xl p-6 shadow-2xl border border-slate-700/50 flex flex-col items-center justify-center text-center relative overflow-hidden group">
+            <div class="absolute inset-0 bg-indigo-500/5 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+            
+            <svg class="w-12 h-12 text-indigo-400 mb-4 transform group-hover:-translate-y-1 transition duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            
+            <h3 class="text-lg font-bold text-white mb-2 leading-tight">Drop Report File</h3>
+            <p class="text-xs text-slate-400 mb-6 font-medium tracking-wide">(CSV or PDF layout)</p>
+
+            <label class="cursor-pointer bg-slate-900 border border-slate-600 hover:border-indigo-500 hover:text-indigo-300 text-slate-300 transition-colors duration-300 py-3 px-6 rounded-xl font-bold text-sm w-full relative z-10 shadow-inner">
+                <span>Select Document</span>
+                <input type="file" id="fileInput" accept=".csv,.pdf" class="hidden">
+            </label>
+            <p id="fileNameDisplay" class="text-xs text-emerald-400 font-bold mt-4 h-4 truncate w-full px-2 break-all"></p>
+
+            <button type="submit" id="analyzeBtn" class="mt-6 w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(79,70,229,0.3)] transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 opacity-50 cursor-not-allowed pointer-events-none" disabled>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                Generate Analysis
+            </button>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    <div class="lg:col-span-2">
+        <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl p-8 shadow-2xl border border-slate-700/50 min-h-[500px] relative flex flex-col">
+            <div id="emptyState" class="flex-1 flex flex-col items-center justify-center text-slate-500 opacity-100 transition-opacity duration-300">
+                <svg class="w-20 h-20 mb-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <p class="text-lg font-medium text-slate-400">Awaiting Document Upload</p>
+                <p class="text-sm mt-1">Provide a document to extract financial metrics.</p>
+            </div>
+
+            <div id="loadingState" class="absolute inset-0 z-20 bg-slate-800/90 backdrop-blur-xl flex flex-col flex-1 items-center justify-center hidden rounded-2xl">
+                <div class="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
+                <h3 class="text-indigo-400 font-bold text-lg animate-pulse tracking-widest uppercase">Parsing Document...</h3>
+                <p class="text-xs text-slate-400 mt-2 font-mono">Executing mathematical extraction rules</p>
+            </div>
+
+            <div id="resultsState" class="hidden prose prose-invert max-w-none text-sm absolute inset-0 overflow-y-auto p-8 h-full rounded-2xl">
+                <!-- Markdown will be injected here -->
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            fileNameDisplay.textContent = e.target.files[0].name;
+            analyzeBtn.disabled = false;
+            analyzeBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+        } else {
+            fileNameDisplay.textContent = '';
+            analyzeBtn.disabled = true;
+            analyzeBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+        }
+    });
+
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        // UI State Transitions
+        document.getElementById('emptyState').classList.add('hidden');
+        document.getElementById('resultsState').classList.add('hidden');
+        document.getElementById('loadingState').classList.remove('hidden');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/api/dashboard/reports/analyze', {
+                method: 'POST',
+                body: formData
+            });
+
+            document.getElementById('loadingState').classList.add('hidden');
+
+            const data = await res.json();
+            
+            if (res.ok) {
+                const resultsEl = document.getElementById('resultsState');
+                resultsEl.innerHTML = marked.parse(data.analysis);
+                resultsEl.classList.remove('hidden');
+            } else {
+                showToast(`Analyzer Error: ${data.detail || "Unable to parse"}`, true);
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+        } catch (err) {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('emptyState').classList.remove('hidden');
+            showToast("Network connection rejected.", true);
+        }
+    });
+
+    // Handle Drag and Drop
+    const dropZone = document.getElementById('uploadForm');
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+    function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+    
+    dropZone.addEventListener('dragover', () => dropZone.classList.add('border-indigo-500', 'bg-slate-800'));
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-indigo-500', 'bg-slate-800'));
+    
+    dropZone.addEventListener('drop', (e) => {
+        dropZone.classList.remove('border-indigo-500', 'bg-slate-800');
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        fileInput.files = files;
+        fileInput.dispatchEvent(new Event('change'));
+    });
+</script>
+{% endblock %}

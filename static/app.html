@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Zorvyn Finance - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import { prepare, layout } from 'https://esm.sh/@chenglou/pretext';
+    window.measurePretextHeight = (text, w) => {
+      if (!text) return 0;
+      const prepared = prepare(text, '14px ui-sans-serif, system-ui, sans-serif');
+      const { height } = layout(prepared, w, 20); // 14px font, ~20px line height
+      return height;
+    };
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Outfit', sans-serif; background: #0f172a; }
+    .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+    .glass-card { background: linear-gradient(145deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%); border: 1px solid rgba(255, 255, 255, 0.05); }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+</head>
+<body class="text-slate-200 antialiased min-h-screen flex selection:bg-indigo-500/30">
+
+  <!-- Sidebar -->
+  <aside class="w-64 glass border-r border-slate-800 hidden md:flex flex-col justify-between fixed h-full z-10">
+    <div>
+      <div class="h-20 flex items-center px-8 border-b border-slate-800/50">
+        <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent flex items-center gap-2">
+          <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Zorvyn
+        </h1>
+      </div>
+      <nav class="p-6 space-y-2">
+        <a href="#" class="flex items-center gap-3 px-4 py-3 bg-indigo-500/10 text-indigo-400 rounded-xl font-medium transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+          Overview
+        </a>
+      </nav>
+    </div>
+    <div class="p-6">
+      <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition duration-300 font-medium">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 md:ml-64 p-8 lg:p-12 relative overflow-hidden">
+    <!-- Decorative background blobs -->
+    <div class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
+    <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
+
+    <header class="flex justify-between items-end mb-10">
+      <div>
+        <h2 class="text-sm font-semibold text-indigo-400 uppercase tracking-wider mb-1">Financial Overview</h2>
+        <h1 class="text-4xl font-bold text-white tracking-tight">Welcome back, Admin.</h1>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- Stats Row -->
+      <div class="col-span-1 lg:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-6" id="statsContainer">
+        <!-- Injected -->
+      </div>
+
+      <!-- Left Column: Transactions -->
+      <div class="col-span-1 lg:col-span-8 glass-card rounded-2xl p-6 shadow-2xl relative overflow-hidden group">
+        <div class="flex justify-between items-center border-b border-slate-700/50 pb-4 mb-6">
+          <h3 class="text-lg font-bold text-white">Recent Transactions</h3>
+          <span class="px-3 py-1 bg-slate-800 rounded-full text-xs font-medium text-slate-300">Last 5 records</span>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="text-xs uppercase tracking-widest text-slate-500 border-b border-slate-700/50">
+                <th class="pb-3 font-medium">Description</th>
+                <th class="pb-3 font-medium">Date</th>
+                <th class="pb-3 font-medium text-right">Amount</th>
+                <th class="pb-3 font-medium text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody id="activityList" class="divide-y divide-slate-700/30">
+              <!-- Injected -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right Column: Add Record -->
+      <div class="col-span-1 lg:col-span-4 glass-card rounded-2xl p-6 shadow-2xl h-fit border border-indigo-500/20">
+        <div class="flex items-center gap-3 mb-6 border-b border-slate-700/50 pb-4">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          </div>
+          <h3 class="text-lg font-bold text-white">Log Transaction</h3>
+        </div>
+
+        <form id="recordForm" class="space-y-5">
+          <div>
+            <label class="block text-xs uppercase tracking-widest text-slate-400 mb-1.5 ml-1">Amount</label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 sm">$</span>
+              <input type="number" step="0.01" id="amount" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-8 pr-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition shadow-inner" required placeholder="0.00">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-slate-400 mb-1.5 ml-1">Type</label>
+              <select id="type" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition appearance-none cursor-pointer text-slate-200">
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-slate-400 mb-1.5 ml-1">Category</label>
+              <input type="text" id="category" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition shadow-inner placeholder-slate-600" placeholder="Groceries" required>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-widest text-slate-400 mb-1.5 ml-1 flex justify-between">
+              Notes
+              <span id="noteMeasurement" class="text-indigo-400 opacity-0 transition-opacity duration-300 text-[10px] normal-case bg-indigo-500/10 px-2 py-0.5 rounded-full">Calculated using pretext</span>
+            </label>
+            <!-- PRETEXT MAGIC HERE: resize:none + overflow:hidden to let pretext handle it perfectly -->
+            <textarea id="notes" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition shadow-inner placeholder-slate-600 resize-none overflow-hidden" style="min-height: 44px;" placeholder="Optional context..."></textarea>
+          </div>
+          <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white shadow-lg shadow-indigo-500/25 transition-all duration-300 font-bold py-3 mt-4 rounded-xl text-sm uppercase tracking-wide transform hover:-translate-y-0.5">Save Record</button>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/dashboard/index.html';
+
+    async function fetchDashboard() {
+      try {
+        const res = await fetch('/api/dashboard/summary', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.status === 401) { logout(); return; }
+        const data = await res.json();
+        
+        const formatMoney = (val) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+        
+        document.getElementById('statsContainer').innerHTML = `
+          <div class="glass-card p-6 rounded-2xl relative overflow-hidden group border-t border-t-white/10 hover:border-indigo-500/50 transition duration-500">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500/30 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              </div>
+              <h3 class="text-slate-400 text-sm font-semibold uppercase tracking-widest">Net Balance</h3>
+            </div>
+            <p class="text-4xl font-light tracking-tight text-white mb-2">${formatMoney(data.net_balance)}</p>
+            <div class="w-full bg-slate-800 rounded-full h-1.5"><div class="bg-indigo-500 h-1.5 rounded-full w-full"></div></div>
+          </div>
+          
+          <div class="glass-card p-6 rounded-2xl relative overflow-hidden group border-t border-t-white/10 hover:border-emerald-500/50 transition duration-500">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/30 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+              </div>
+              <h3 class="text-slate-400 text-sm font-semibold uppercase tracking-widest">Total Income</h3>
+            </div>
+            <p class="text-4xl font-light tracking-tight text-white mb-2">${formatMoney(data.total_income)}</p>
+            <div class="text-xs text-emerald-400 font-medium bg-emerald-500/10 inline-block px-2 py-1 rounded-md">+ Steady flow</div>
+          </div>
+
+          <div class="glass-card p-6 rounded-2xl relative overflow-hidden group border-t border-t-white/10 hover:border-rose-500/50 transition duration-500">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 group-hover:bg-rose-500/30 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
+              </div>
+              <h3 class="text-slate-400 text-sm font-semibold uppercase tracking-widest">Total Expenses</h3>
+            </div>
+            <p class="text-4xl font-light tracking-tight text-white mb-2">${formatMoney(data.total_expenses)}</p>
+            <div class="text-xs text-rose-400 font-medium bg-rose-500/10 inline-block px-2 py-1 rounded-md">Needs attention</div>
+          </div>
+        `;
+        
+        const activityHtml = data.recent_activity.map(a => `
+          <tr class="hover:bg-slate-800/50 transition duration-200 group">
+            <td class="py-4 px-2">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center ${a.type === 'income' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}">
+                  ${a.type === 'income' ? '+' : '-'}
+                </div>
+                <span class="font-medium text-slate-200">${a.category}</span>
+              </div>
+            </td>
+            <td class="py-4 text-sm text-slate-400">${new Date(a.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})}</td>
+            <td class="py-4 text-right font-medium tracking-wide ${a.type === 'income' ? 'text-emerald-400' : 'text-slate-200'}">
+              ${a.type === 'income' ? '+' : '-'}${formatMoney(a.amount)}
+            </td>
+            <td class="py-4 text-right">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                Completed
+              </span>
+            </td>
+          </tr>
+        `).join('');
+        
+        document.getElementById('activityList').innerHTML = activityHtml || `<tr><td colspan="4" class="py-8 text-center text-slate-500">No transactions recorded yet.</td></tr>`;
+      } catch (err) {}
+    }
+
+    const notesInput = document.getElementById('notes');
+    notesInput.addEventListener('input', (e) => {
+      const text = e.target.value;
+      if (window.measurePretextHeight) {
+        const padding = 24; 
+        const width = notesInput.clientWidth - 32; 
+        const calculatedHeight = window.measurePretextHeight(text, width);
+        notesInput.style.height = `${Math.max(44, calculatedHeight + padding)}px`;
+        document.getElementById('noteMeasurement').style.opacity = text.length > 0 ? 1 : 0;
+      }
+    });
+
+    document.getElementById('recordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        amount: parseFloat(document.getElementById('amount').value),
+        record_type: document.getElementById('type').value,
+        category: document.getElementById('category').value,
+        notes: notesInput.value
+      };
+
+      try {
+        const res = await fetch('/api/records/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+        
+        if (res.ok) {
+          e.target.reset();
+          notesInput.style.height = '44px';
+          document.getElementById('noteMeasurement').style.opacity = 0;
+          fetchDashboard();
+        } else {
+          const errData = await res.json();
+          alert(`Failed: ${errData.detail || 'Access Denied / Not Admin'}`);
+        }
+      } catch (err) {}
+    });
+
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = '/dashboard/index.html';
+    }
+
+    fetchDashboard();
+  </script>
+</body>
+</html>
