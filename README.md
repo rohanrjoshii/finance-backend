@@ -1,95 +1,77 @@
-# CashFlow Pro
+CashFlow Pro
 
-A clear, maintainable FastAPI backend engineered for financial data processing, role-based access control, and server-side rendering.
+This project is designed to give you a solid FastAPI backend for tracking finances, with clear role-based access control and server-side rendering. It’s built to be maintainable and easy to follow, so you can handle user roles, manage income and expenses, process uploads like CSV and PDF, and always keep a log of critical actions.
 
-## Overview
-CashFlow Pro is a financial tracking API and dashboard. The system manages user roles (Admin, Analyst, Viewer), handles typical financial records (income, expenses), generates analytical summaries from structural document uploads (CSV/PDF) using explicit Python parsers, and logs all critical actions.
+Quick note on architecture: You get unified server-side rendering with FastAPI's Jinja2Templates, connected directly to a stateless API core.
 
-*Note on Architecture*: This project utilizes FastAPI's `Jinja2Templates` for unified Server-Side Rendering (SSR) built tightly around a stateless API architecture.
+Tech Stack
 
-## Tech Stack
-* **Backend:** FastAPI (Python)
-* **Database:** SQLite with SQLAlchemy ORM. *(Note: SQLite is configured here for seamless single-instance development. The abstraction layer via SQLAlchemy allows for an instant swap to PostgreSQL via connection string updates).*
-* **Authentication:** JWT via HTTPOnly Cookies (enabling robust SSR navigation) and `bcrypt` password hashing.
-* **Frontend:** HTML5 / Tailwind CSS (CDN) embedded directly in Jinja2 templates.
-* **Document Processing:** Python's native `csv` and `pypdf`.
+- Backend: FastAPI (Python)
+- Database: SQLite (via SQLAlchemy ORM). You can swap out SQLite for PostgreSQL just by updating your connection string, thanks to SQLAlchemy’s abstraction.
+- Auth: JWT stored in HTTPOnly cookies for secure SSR navigation; password hashing with bcrypt.
+- Frontend: HTML5 + Tailwind CSS, directly built into Jinja2 templates.
+- Document Processing: Native csv and pypdf modules.
 
----
+Project Structure
 
-## Project Structure
-```text
 finance-backend/
 ├── api/
-│   ├── dependencies.py      # JWT extraction and Role-Based access decorators
-│   ├── routes/              # FastAPI route controllers (auth, users, records, dashboard)
-│   └── services/            # Business logic (e.g., document_analyzer.py)
+│   ├── dependencies.py        # Handles JWT extraction and access decorators
+│   ├── routes/                # Route controllers (auth, user, records, dashboard)
+│   └── services/              # Business logic (document analyzer, etc.)
 ├── core/
-│   ├── config.py            # Environment settings and JWT constants
-│   └── security.py          # Password hashing and token generation
+│   ├── config.py              # Env settings, JWT constants
+│   └── security.py            # Password hashing, token creation
 ├── db/
-│   └── database.py          # SQLAlchemy engine and session dependency
-├── models/                  # SQLAlchemy ORM definitions (record.py, user.py)
-├── schemas/                 # Pydantic models for request/response validation
-├── templates/               # Jinja2 HTML templates for SSR
-├── tests/                   # Pytest suite
+│   └── database.py            # SQLAlchemy setup
+├── models/                    # ORM definitions
+├── schemas/                   # Pydantic validation models
+├── templates/                 # Jinja2 HTML templates
+├── tests/                     # Pytest suite
 ├── web/
-│   └── routes.py            # Jinja2 template controllers
-├── main.py                  # Application entry point and router assembly
-└── requirements.txt         # Project dependencies
-```
+│   └── routes.py              # SSR template controllers
+├── main.py                    # Entrypoint and router assembly
+└── requirements.txt           # Dependencies list
 
----
+API Reference
 
-## API Endpoints Overview
-A comprehensive, interactive Swagger UI is built into the framework and available at `http://127.0.0.1:8000/docs` while the server is running.
+Swagger UI comes baked in and is ready at http://127.0.0.1:8000/docs while your server is running.
 
-| Method | Endpoint                        | Description                                         | Access Level         |
-| :---   | :---                            | :---                                                | :---                 |
-| `POST` | `/api/auth/login`               | Authenticates a user and returns an HTTPOnly Cookie | Public               |
-| `POST` | `/api/users/register`           | Registers a new user.                               | Public               |
-| `GET`  | `/api/users/me`                 | Returns the currently authenticated user's profile  | Any Auth             |
-| `POST` | `/api/records/`                 | Logs a new financial transaction                    | Admin Only           |
-| `GET`  | `/api/records/`                 | Retrieves paginated transaction records             | Any Auth             |
-| `GET`  | `/api/dashboard/summary`        | Returns current totals, savings rates, and balances | Any Auth             |
-| `POST` | `/api/dashboard/reports/analyze`| Parses and extracts data from uploaded CSV/PDFs     | Any Auth             |
+| Method | Endpoint                        | What It Does                                           | Who Can Use |
+| ------ | ------------------------------- | ------------------------------------------------------ | ----------- |
+| POST   | /api/auth/login                 | Authenticates user; returns HTTPOnly cookie            | Anyone      |
+| POST   | /api/users/register             | Registers a new user                                   | Anyone      |
+| GET    | /api/users/me                   | Returns profile of authenticated user                  | Any Auth    |
+| POST   | /api/records/                   | Creates a new financial transaction                    | Admin Only  |
+| GET    | /api/records/                   | Retrieves paginated transactions                       | Any Auth    |
+| GET    | /api/dashboard/summary          | Shows current totals, savings rates, balances          | Any Auth    |
+| POST   | /api/dashboard/reports/analyze  | Extracts data from uploaded CSV/PDFs                   | Any Auth    |
 
-*(Note: "Any Auth" implies any successfully authenticated user role).*
+("Any Auth" just means any user who’s logged in and authenticated.)
 
----
+Setup & Installation
 
-## Setup & Installation
-
-### 1. Environment Configuration
-Copy the provided environment template to establish your local secrets.
-```bash
+1. Environment Setup
+Copy the example env file to start off your local secrets:
 cp .env.example .env
-```
 
-### 2. Install Dependencies
-Ensure Python 3.9+ is installed.
-```bash
+2. Install Dependencies
+Make sure you've got Python 3.9+ ready.
 python -m venv venv
-# Activate the environment (Mac/Linux)
-source venv/bin/activate  
-# Activate the environment (Windows)
+# Mac/Linux:
+source venv/bin/activate
+# Windows:
 venv\Scripts\activate
-
 pip install -r requirements.txt
-```
 
-### 3. Run the Server
-```bash
+3. Launch the Server
 uvicorn main:app --reload
-```
-Navigate directly to `http://127.0.0.1:8000/login` to access the application.
 
-*Security Note on Admin Bootstrapping*: For demonstration purposes solely, the application natively grants `Admin` privileges to the very first user created via the "Register Demo Admin" button. Production systems should strictly rely on environment-seeded admin accounts or isolated CLI migration scripts.
+Go straight to http://127.0.0.1:8000/login and you’re in.
 
----
+Admin Bootstrapping Security Note: For demo purposes, the first user you create through "Register Demo Admin" gets admin privileges by default. Don’t do this in production — use environment-seeded accounts or CLI migration scripts for admin setup.
 
-## Testing
-The application includes a standard backend test suite powered by `pytest` and `httpx`.
-Run the verification suite locally using:
-```bash
+Testing
+
+You get a standard backend test suite powered by pytest and httpx. To run tests locally:
 pytest
-```
